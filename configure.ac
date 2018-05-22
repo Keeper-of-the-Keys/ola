@@ -101,7 +101,7 @@ AC_CHECK_HEADERS([arpa/inet.h bits/sockaddr.h fcntl.h float.h limits.h \
 AC_CHECK_HEADERS([asm/termios.h assert.h dlfcn.h endian.h execinfo.h \
                   linux/if_packet.h math.h net/ethernet.h stropts.h \
                   sys/param.h sys/types.h sys/uio.h sysexits.h])
-AC_CHECK_HEADERS([winsock2.h])
+AC_CHECK_HEADERS([winsock2.h winerror.h])
 AC_CHECK_HEADERS([random])
 
 # This needs stuff in sys/param.h on OpenBSD
@@ -671,8 +671,17 @@ AS_IF([test "x$enable_libusb" != xno],
                          [have_libusb_hotplug_api="yes"], [true])])
 AS_IF([test "x$have_libusb_hotplug_api" = xyes],
       [AC_DEFINE([HAVE_LIBUSB_HOTPLUG_API], [1],
-                 [define if libusb is installed and the libusb])])
+                 [define if libusb is installed and the libusb hotplug API is available])])
 AM_CONDITIONAL([HAVE_LIBUSB_HOTPLUG_API], [test "x$have_libusb_hotplug_api" = xyes])
+
+have_libusb_set_option="no"
+AS_IF([test "x$enable_libusb" != xno],
+      [PKG_CHECK_MODULES([libusb_set_option], [libusb-1.0 >= 1.0.22],
+                         [have_libusb_set_option="yes"], [true])])
+AS_IF([test "x$have_libusb_set_option" = xyes],
+      [AC_DEFINE([HAVE_LIBUSB_SET_OPTION], [1],
+                 [define if libusb is installed and libusb_set_option is available])])
+AM_CONDITIONAL([HAVE_LIBUSB_SET_OPTION], [test "x$have_libusb_set_option" = xyes])
 
 # UART direct plugin
 AC_ARG_ENABLE(
@@ -731,7 +740,7 @@ AS_IF([test "x$enable_root_check" = xno],
 # Use tcmalloc. This is used by the buildbot leak checks.
 AC_ARG_ENABLE([tcmalloc], AS_HELP_STRING([--enable-tcmalloc], [Use tcmalloc]))
 AS_IF([test "x$enable_tcmalloc" = xyes],
-      [AC_CHECK_LIB([tcmalloc], [malloc], [LDFLAGS="$LDFLAGS -ltcmalloc"], [AS_ERROR([tcmalloc not found, but enabled on command line])])])
+      [AC_CHECK_LIB([tcmalloc], [malloc], [AM_LDFLAGS="$AM_LDFLAGS -ltcmalloc"], [AS_ERROR([tcmalloc not found, but enabled on command line])])])
 
 # Optionally set the Doxygen version to "Latest Git" for website latest
 # version.
@@ -844,6 +853,7 @@ PLUGIN_SUPPORT(gpio, USE_GPIO)
 PLUGIN_SUPPORT(karate, USE_KARATE)
 PLUGIN_SUPPORT(kinet, USE_KINET)
 PLUGIN_SUPPORT(milinst, USE_MILINST)
+PLUGIN_SUPPORT(nanoleaf, USE_NANOLEAF)
 PLUGIN_SUPPORT(opendmx, USE_OPENDMX)
 PLUGIN_SUPPORT(openpixelcontrol, USE_OPENPIXELCONTROL)
 PLUGIN_SUPPORT(osc, USE_OSC, [$have_liblo])
@@ -852,6 +862,7 @@ PLUGIN_SUPPORT(renard, USE_RENARD)
 PLUGIN_SUPPORT(sandnet, USE_SANDNET)
 PLUGIN_SUPPORT(shownet, USE_SHOWNET)
 PLUGIN_SUPPORT(spi, USE_SPI, [$have_spi])
+PLUGIN_SUPPORT(spidmx, USE_SPIDMX, [$have_spi])
 PLUGIN_SUPPORT(stageprofi, USE_STAGEPROFI)
 PLUGIN_SUPPORT(uartdmx, USE_UART, [$have_uart])
 PLUGIN_SUPPORT(usbdmx, USE_LIBUSB, [$have_libusb])
@@ -930,6 +941,7 @@ AC_CONFIG_FILES([include/ola/base/Version.h
                  ])
 # Makefiles
 AC_CONFIG_FILES([Makefile java/Makefile])
+AC_SUBST(AM_LDFLAGS)
 AC_OUTPUT
 
 echo \
@@ -938,7 +950,7 @@ ${PACKAGE_NAME} Version ${PACKAGE_VERSION}
 
 Prefix: '${prefix}'
 Compiler: '${CXX} ${CXXFLAGS} ${CPPFLAGS}'
-Linker: '${LD} ${LDFLAGS} ${LIBS}'
+Linker: '${LD} ${AM_LDFLAGS} ${LIBS}'
 Python: ${PYTHON}
 
 Python API: ${enable_python_libs}

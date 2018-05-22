@@ -138,7 +138,7 @@ void FtdiWidget::Widgets(vector<FtdiWidgetInfo> *widgets) {
       while (current_device != NULL) {
 #if HAVE_LIBFTDI1
 	struct libusb_device *dev = current_device->dev;
-#else	
+#else
         struct usb_device *dev = current_device->dev;
 #endif //HAVE_LIBFTDI1
         current_device = current_device->next;
