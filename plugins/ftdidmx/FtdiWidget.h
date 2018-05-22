@@ -29,13 +29,22 @@
  * Additional modifications to enable support for multiple outputs and
  * additional devices ids did change the original structure.
  *
- * by E.S. Rosenberg a.k.a. Keeper of the Keys 5774/2014
+ * by E.S. Rosenberg a.k.a. Keeper of the Keys 5774/2014 - 5778/2018
  */
 
 #ifndef PLUGINS_FTDIDMX_FTDIWIDGET_H_
 #define PLUGINS_FTDIDMX_FTDIWIDGET_H_
 
+#if HAVE_CONFIG_H
+#include <config.h>
+#endif  // HAVE_CONFIG_H
+
+#ifdef HAVE_LIBFTDI1
+#include <libftdi1/ftdi.h>
+#else
 #include <ftdi.h>
+#endif // HAVE_LIBFTDI1
+
 #include <stdint.h>
 #include <string.h>
 
