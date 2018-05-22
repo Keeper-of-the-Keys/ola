@@ -12,8 +12,18 @@ plugins_ftdidmx_libolaftdidmx_la_SOURCES = \
     plugins/ftdidmx/FtdiDmxThread.h \
     plugins/ftdidmx/FtdiWidget.cpp \
     plugins/ftdidmx/FtdiWidget.h
+
 plugins_ftdidmx_libolaftdidmx_la_LIBADD = \
-    $(libftdi_LIBS) \
-    common/libolacommon.la \
-    olad/plugin_api/libolaserverplugininterface.la
-endif
+  common/libolacommon.la \
+  olad/plugin_api/libolaserverplugininterface.la
+
+if HAVE_LIBFTDI1
+plugins_ftdidmx_libolaftdidmx_la_LIBADD += \
+  $(libftdi1_LIBS)
+else
+plugins_ftdidmx_libolaftdidmx_la_LIBADD += \
+  $(libftdi0_LIBS)
+endif #HAVE_LIBFDTI1
+
+
+endif #USE_FTDI
